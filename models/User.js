@@ -20,15 +20,16 @@ User.prototype.verify = function(dbConnection, done){
             return false;
         }
         storedHash = results[0].password;
+        bcrypt.compare(this.password, storedHash, (err, res) => {
+            console.log('compare running');
+            if(err){
+                console.error(err);
+                return;
+            }
+            valid = res;
+            done(res);
+        });
     });
-    bcrypt.compare(this.password, storedHash, (err, res) => {
-        console.log('compare running');
-        valid = true;
-        done(valid);
-        return;
-    });
-    done(valid);
-    return;
 };
 
 User.prototype.exists = function(dbConnection, done){

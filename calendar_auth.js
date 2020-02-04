@@ -1,11 +1,11 @@
 //jshint esversion: 8
 
 const express = require("express");
-const session = require('express-session');
-const uuid = require('uuid/v4');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const ActionCode = require('./modules/ActionCode');
+const ResponseCode = require('./modules/ResponseCode');
 
 const app = express();
 
@@ -74,21 +74,24 @@ app.post('/failReg', (req, res) => {
     res.send('failed to register new user. This user may already exist');
 });
 
-app.post('/failAuth', (req, res) => {
-    res.send('failure to authenticate user');
+app.all('/failAuth', (req, res) => {
+    //TODO: add code to indicate a reason for failure e.g. no such user or incorrect password
+    res.send(ResponseCode.AUTH_FAIL);
 });
 
-app.post('/main', (req, res) => {
-    res.send('success');
-});
 
 app.post('/auth', passport.authenticate('local', { failureRedirect: '/failAuth' }), (req, res) => {
-    //TODO: if success parse req.body to search for req.body.action variable and redirect based on value
-    console.log(`req.body.action: ${req.body.action}`); //this indicates desired action
+    //TODO: if success parse req.body to search for req.body.action variable and call appropriate action functioin
+    console.log(`req.body ${req.body}`); //this indicates desired action
     try{
-        res.redirect(308, '/main');
+        if(req.body.action === ActionCode.CHECK_CREDENTIALS){
+            res.send(ResponseCode.CREDENTIALS_VALID);
+        }else{
+            res.send(ResponseCode.INVALID_REQUEST);
+        }
     }catch(err){
         console.error(err);
+        res.ResponseCode(ResponseCode.REQUEST_FAILED);
     }
 });
 

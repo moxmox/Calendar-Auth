@@ -3,7 +3,7 @@
 //server definition
 const server = {
     port: 3000,
-    ipaddr: '127.0.0.1',
+    ipaddr: '192.168.0.6',
     init: ''
 };
 
